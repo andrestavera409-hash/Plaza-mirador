@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Plaza Mirador: mapa de locales en forma de media luna."
+    />
+    <title>Plaza Mirador - Mapa</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/mapa.css" />
+    <link rel="stylesheet" href="css/api.css" />
+  </head>
+
+  <body>
+    <a class="salto-contenido" href="#mapa-principal">Saltar al contenido principal</a>
+
+    <!-- cabecera: un solo h1 y el menu para volver a la pagina principal -->
+    <header class="topbar">
+      <h1 class="topbar__marca">Plaza Mirador</h1>
+
+      <nav class="topbar__nav" aria-label="Paginas del sitio">
+        <ul class="topbar__lista">
+          <li><a href="index.html">Pagina principal</a></li>
+          <li><a href="mapa.html" aria-current="page">Mapa</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="mapa-principal" class="mapa-pagina">
+      <section class="mapa-panel" aria-labelledby="titulo-plano">
+        <h2 id="titulo-plano">Plano de locales</h2>
+        <p class="mapa-ayuda">
+          Toca un local para ver su detalle. Para acercar usa los botones, la rueda del mouse o dos dedos.
+        </p>
+
+        <!-- estado de la consulta a la API de tasas de cambio -->
+        <p id="estado-api" class="estado-api" role="status">
+          <span id="indicador-carga" class="indicador-carga oculto"></span>
+          <span id="texto-estado-api"></span>
+        </p>
+
+        <div class="mapa-controles">
+          <div class="mapa-controles__grupo">
+            <label for="modo-color">Colorear por:</label>
+            <select id="modo-color">
+              <option value="zona">Zona (cercania al mirador)</option>
+              <option value="estado">Estado de pago</option>
+            </select>
+          </div>
+          <div class="mapa-controles__grupo">
+            <label for="selector-moneda">Ver valores en:</label>
+            <select id="selector-moneda">
+              <option value="COP">Pesos (COP)</option>
+              <option value="USD">Dolares (USD)</option>
+              <option value="EUR">Euros (EUR)</option>
+            </select>
+          </div>
+          <div class="mapa-controles__grupo">
+            <button type="button" id="boton-acercar" class="mapa-boton mapa-boton--zoom" aria-label="Acercar">+</button>
+            <button type="button" id="boton-alejar" class="mapa-boton mapa-boton--zoom" aria-label="Alejar">-</button>
+            <button type="button" id="boton-todo" class="mapa-boton">Ver todo</button>
+            <button type="button" id="boton-ir-local" class="mapa-boton" disabled>Ir al local</button>
+          </div>
+        </div>
+
+        <div class="mapa-marco">
+          <svg id="mapa" class="mapa-svg" viewBox="0 0 1480 1080" role="group" aria-label="Plano de los locales, los pasillos y el mirador"></svg>
+        </div>
+
+        <ul id="leyenda" class="mapa-leyenda"></ul>
+      </section>
+
+      <aside class="mapa-panel" aria-labelledby="titulo-detalle">
+        <h2 id="titulo-detalle">Detalle del local</h2>
+        <p id="detalle-vacio">Aun no has seleccionado ningun local.</p>
+
+        <div id="detalle-datos" class="oculto">
+          <h3 id="detalle-numero"></h3>
+          <dl class="mapa-detalle__lista">
+            <dt>Zona</dt><dd id="detalle-zona"></dd>
+            <dt>Metros cuadrados</dt><dd id="detalle-metros"></dd>
+            <dt>Arriendo mensual</dt><dd id="detalle-arriendo"></dd>
+            <dt id="detalle-etiqueta-equivalente" class="oculto">Arriendo en dolares</dt><dd id="detalle-equivalente" class="oculto"></dd>
+            <dt>Sin efecto de zona</dt><dd id="detalle-base"></dd>
+            <dt>Estado</dt><dd id="detalle-estado"></dd>
+          </dl>
+
+          <div class="mapa-detalle__acciones">
+            <button type="button" id="boton-contacto" class="mapa-boton">Ver contacto</button>
+            <button type="button" id="boton-contrato" class="mapa-boton">Ver contrato</button>
+          </div>
+          <p id="detalle-extra" class="mapa-detalle__extra oculto"></p>
+        </div>
+
+        <div class="mapa-resumen">
+          <h3>Resumen</h3>
+          <p id="resumen-texto"></p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="pie">
+      <address>Cra. 45 # 26-85, Medellin, Antioquia, Colombia</address>
+
+      <nav class="pie__redes" aria-label="Redes sociales">
+        <a href="https://pascualbravo.edu.co/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://pascualbravo.edu.co/" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://pascualbravo.edu.co/" target="_blank" rel="noopener">WhatsApp</a>
+      </nav>
+
+      <p>&copy; 2026 Plaza Mirador.</p>
+      <p class="credito-api">Tasas de cambio de <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a>.</p>
+      <p>Proyecto academico - Herramientas de Programacion III</p>
+    </footer>
+
+    <script src="js/mapa-modelo.js"></script>
+    <script src="js/servicios/api.js"></script>
+    <script src="js/mapa-vista.js"></script>
+    <script src="js/mapa-controlador.js"></script>
+  </body>
+</html>
