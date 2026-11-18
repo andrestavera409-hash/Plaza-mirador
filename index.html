@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Plaza Mirador: panel de gestion de arriendos de locales."
+    />
+    <title>Plaza Mirador</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <link rel="stylesheet" href="css/api.css" />
+    <link rel="stylesheet" href="css/tabla.css" />
+  </head>
+
+  <body>
+    <a class="salto-contenido" href="#inicio">Saltar al contenido principal</a>
+
+    <!-- cabecera: un solo h1 y el menu con enlaces a las secciones -->
+    <header class="topbar">
+      <h1 class="topbar__marca">Plaza Mirador</h1>
+
+      <nav class="topbar__nav" aria-label="Secciones de la pagina">
+        <ul class="topbar__lista">
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#locales">Locales</a></li>
+          <li><a href="#locales-disponibles">Disponibles</a></li>
+          <li><a href="#especificaciones">Especificaciones</a></li>
+          <li><a href="#ranking">Locales por tamano</a></li>
+          <li><a href="#categorias">Categorias</a></li>
+          <li><a href="#indicadores">Indicadores</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+          <li><a href="mapa.html">Mapa</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="diseno">
+      <!-- barra lateral: filtros por categoria y resumen, los llena el JS -->
+      <aside class="lateral" aria-label="Filtros y resumen">
+        <h2>Filtrar por plan</h2>
+        <div id="filtros-categoria" class="filtros-categoria"></div>
+
+        <h2>Resumen</h2>
+        <div id="resumen" class="resumen">
+          <p id="resumen-total"></p>
+          <p id="resumen-premium"></p>
+          <p id="resumen-area"></p>
+          <p id="resumen-suma"></p>
+          <p id="resumen-equivalente" class="oculto"></p>
+        </div>
+      </aside>
+
+      <main>
+        <!-- seccion 1 presentacion de la pagina -->
+        <section id="inicio" class="seccion">
+          <h2>Bienvenido</h2>
+          <p>Control de arriendo de los locales del centro comercial.</p>
+        </section>
+
+        <!-- seccion 2 un article por cada local, con el estado del pago -->
+        <section id="locales" class="seccion">
+          <h2>Locales</h2>
+          <p>
+            Estado de arriendo del mes actual. Los valores estan en pesos colombianos.
+          </p>
+
+          <div class="catalogo">
+            <article class="tarjeta estado-pagado">
+              <h3>Local 101 - Cafe Andino</h3>
+              <p>Estado: <strong>Pagado</strong></p>
+              <p>Area: 20 metros cuadrados. Arrendatario: Cafe Andino</p>
+              <p>Arriendo: $ 1.300.000 / mes</p>
+            </article>
+
+            <article class="tarjeta estado-pendiente">
+              <h3>Local 204 - Moda Urbana</h3>
+              <p>Estado: <strong>Pendiente</strong></p>
+              <p>Area: 35 metros cuadrados. Arrendatario: Moda Urbana. Vence en <em>3 dias</em>.</p>
+              <p>Arriendo: $ 2.275.000 / mes</p>
+            </article>
+
+            <article class="tarjeta estado-moroso">
+              <h3>Local 118 - TecnoPlus</h3>
+              <p>Estado: <strong>No pagado</strong></p>
+              <p>Area: 45 metros cuadrados. Arrendatario: TecnoPlus. <em>22 dias de mora.</em></p>
+              <p>Arriendo: $ 2.925.000 / mes</p>
+            </article>
+
+            <article class="tarjeta estado-pagado">
+              <h3>Local 305 - Cinemas Mirador</h3>
+              <p>Estado: <strong>Pagado</strong></p>
+              <p>Area: 60 metros cuadrados. Arrendatario: Cinemas Mirador</p>
+              <p>Arriendo: $ 3.900.000 / mes</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- todo lo de aqui en adelante lo pinta el JS a partir del arreglo de datos -->
+        <section id="locales-disponibles" class="seccion">
+          <h2>Locales disponibles para arrendar</h2>
+          <p>Catalogo de espacios disponibles. Se puede agregar, buscar, filtrar y eliminar.</p>
+
+          <div class="buscador">
+            <label for="buscador">Buscar local por numero</label>
+            <input type="search" id="buscador" />
+          </div>
+          <p id="contador-resultados"></p>
+          <p id="aviso-sin-resultados" class="oculto">No se encontraron locales con ese numero.</p>
+
+          <!-- moneda en la que se ven los valores -->
+          <div class="campo-moneda">
+            <label for="selector-moneda">Ver valores en:</label>
+            <select id="selector-moneda">
+              <option value="COP">Pesos (COP)</option>
+              <option value="USD">Dolares (USD)</option>
+              <option value="EUR">Euros (EUR)</option>
+            </select>
+          </div>
+
+          <!-- estado de la consulta a la API de tasas de cambio -->
+          <p id="estado-api" class="estado-api" role="status">
+            <span id="indicador-carga" class="indicador-carga oculto"></span>
+            <span id="texto-estado-api"></span>
+          </p>
+
+          <div id="contenedor-tarjetas" class="catalogo"></div>
+
+          <h4>Tabla de locales disponibles</h4>
+          <div class="tabla-contenedor">
+            <table class="tabla" id="tabla-locales">
+              <thead id="encabezado-tabla-locales">
+                <tr>
+                  <th scope="col" aria-sort="none"><button type="button" class="orden-boton" data-columna="nombre" data-etiqueta="Local">Local</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" class="orden-boton" data-columna="metrosCuadrados" data-etiqueta="Metros cuadrados">Metros cuadrados</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" class="orden-boton" data-columna="categoria" data-etiqueta="Plan">Plan</button></th>
+                  <th scope="col" aria-sort="none"><button type="button" class="orden-boton" data-columna="valorArriendo" data-etiqueta="Valor arriendo">Valor arriendo</button></th>
+                  <th scope="col" id="encabezado-equivalente" class="oculto">Arriendo en dolares</th>
+                </tr>
+              </thead>
+              <tbody id="cuerpo-tabla-locales"></tbody>
+            </table>
+          </div>
+          <p id="aviso-tabla-vacia" class="oculto">No hay locales que coincidan con la busqueda o el filtro.</p>
+
+          <div class="tabla-acciones">
+            <nav class="paginacion" aria-label="Paginacion de la tabla de locales">
+              <button type="button" id="boton-pagina-anterior">Anterior</button>
+              <span id="texto-pagina" role="status"></span>
+              <button type="button" id="boton-pagina-siguiente">Siguiente</button>
+            </nav>
+            <button type="button" id="boton-exportar-csv">Exportar a CSV</button>
+          </div>
+
+          <!-- separado del listado para que no se solapen visualmente -->
+          <h3 id="titulo-form-local" class="separado-arriba">Agregar un local nuevo</h3>
+          <form id="form-local" class="formulario" novalidate>
+            <div class="campo">
+              <label for="nombre-local">Numero del local *</label>
+              <input type="text" id="nombre-local" placeholder="Ej: Local 303" required />
+            </div>
+
+            <div class="campo">
+              <label for="valor-local">Valor del arriendo *</label>
+              <input type="number" id="valor-local" required />
+            </div>
+
+            <div class="campo">
+              <label for="metros-local">Metros cuadrados *</label>
+              <input type="number" id="metros-local" required />
+            </div>
+
+            <div class="formulario__acciones">
+              <button type="submit" id="boton-guardar-local">Agregar local</button>
+              <button type="button" id="boton-cancelar-local" class="oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <p id="mensaje-error-local" class="mensaje-error oculto"></p>
+        </section>
+
+        <!-- seccion 3 como se cobra, tiempos de pago, y la tabla de planes -->
+        <section id="especificaciones" class="seccion">
+          <h2>Especificaciones</h2>
+
+          <h3>Como se cobra</h3>
+          <dl class="especificaciones">
+            <dt>Como se asigna el plan</dt>
+            <dd>Segun el rango de metros cuadrados del local (ver tabla abajo)</dd>
+
+            <dt>Fecha de pago</dt>
+            <dd>Del 1 al 5 de cada mes</dd>
+
+            <dt>Estado Pendiente</dt>
+            <dd>Del dia 6 al dia 15 sin pago</dd>
+
+            <dt>Estado No pagado</dt>
+            <dd>Mas de 15 dias sin pago</dd>
+          </dl>
+
+          <h3>Planes de arrendamiento</h3>
+          <p>Cada local queda en un plan segun su area, no segun un precio fijo por metro.</p>
+          <div class="tabla-contenedor">
+            <table class="tabla">
+              <caption>Planes disponibles para nuevos locales</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Plan</th>
+                  <th scope="col">Area</th>
+                  <th scope="col">Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Basico</td>
+                  <td>Hasta 25 metros cuadrados</td>
+                  <td>$ 1.625.000</td>
+                </tr>
+                <tr>
+                  <td>Pro</td>
+                  <td>25 a 45 metros cuadrados</td>
+                  <td>$ 2.925.000</td>
+                </tr>
+                <tr>
+                  <td>Premium</td>
+                  <td>Mas de 45 metros cuadrados</td>
+                  <td>$ 3.900.000</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3">Todos los precios incluyen IVA.</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- seccion 4 lista ordenada -->
+        <section id="ranking" class="seccion">
+          <h2>Locales por tamaño</h2>
+          <p>Top 5 locales con mayor area, de mayor a menor.</p>
+
+          <ol>
+            <li>Local 305 - Cinemas Mirador: 60 metros cuadrados</li>
+            <li>Local 118 - TecnoPlus: 45 metros cuadrados</li>
+            <li>Local 204 - Moda Urbana: 35 metros cuadrados</li>
+            <li>Local 212 - Zapateria Central: 30 metros cuadrados</li>
+            <li>Local 101 - Cafe Andino: 20 metros cuadrados</li>
+          </ol>
+        </section>
+
+        <!-- seccion 5 lista sin orden, son categorias sin jerarquia entre ellas -->
+        <section id="categorias" class="seccion">
+          <h2>Categorias</h2>
+          <h3>Tipos de locales</h3>
+
+          <ul>
+            <li>Comida y bebidas</li>
+            <li>Moda</li>
+            <li>Tecnologia</li>
+            <li>Belleza</li>
+            <li>Entretenimiento</li>
+          </ul>
+        </section>
+
+        <!-- seccion 6 progress y meter para mostrar los dos indicadores -->
+        <section id="indicadores" class="seccion">
+          <h2>Indicadores</h2>
+
+          <div class="indicador">
+            <label for="al-dia">Locales al dia este mes</label>
+            <progress id="al-dia" value="42" max="50">42 de 50</progress>
+            <p>42 de 50 locales ya pagaron el arriendo.</p>
+          </div>
+
+          <div class="indicador">
+            <label for="morosidad">Indice de morosidad</label>
+            <meter id="morosidad" min="0" max="100" value="16" low="10" high="30" optimum="0">
+              16%
+            </meter>
+            <p>El 16% de los locales tiene algun pago vencido.</p>
+          </div>
+        </section>
+
+        <!-- seccion 7 formulario de contacto, con confirmacion por JS -->
+        <section id="contacto" class="seccion">
+          <h2>Contacto y registro</h2>
+          <p>Los campos con asterisco son obligatorios.</p>
+
+          <form id="form-contacto" action="#" method="post">
+            <fieldset>
+              <legend>Datos del arrendatario</legend>
+
+              <div class="campo">
+                <label for="nombre">Nombre o razon social *</label>
+                <input type="text" id="nombre" name="nombre" required minlength="3" />
+              </div>
+
+              <div class="campo">
+                <label for="correo">Correo electronico *</label>
+                <input type="email" id="correo" name="correo" required />
+              </div>
+
+              <div class="campo">
+                <label for="telefono">Telefono *</label>
+                <input type="tel" id="telefono" name="telefono" required pattern="[0-9]{10}" />
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Local y pago</legend>
+
+              <div class="campo">
+                <label for="local">Local *</label>
+                <select id="local" name="local" required>
+                  <option value="">Seleccione un local</option>
+                  <option>Local 101 - Cafe Andino</option>
+                  <option>Local 204 - Moda Urbana</option>
+                  <option>Local 118 - TecnoPlus</option>
+                  <option>Local 305 - Cinemas Mirador</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="metodo-pago">Metodo de pago *</label>
+                <select id="metodo-pago" name="metodo-pago" required>
+                  <option value="">Seleccione un metodo</option>
+                  <option>Transferencia bancaria</option>
+                  <option>Tarjeta debito / PSE</option>
+                  <option>Consignacion</option>
+                </select>
+              </div>
+
+              <div class="campo">
+                <label for="instrucciones">Observaciones adicionales</label>
+                <textarea id="instrucciones" name="instrucciones" rows="4"></textarea>
+              </div>
+            </fieldset>
+
+            <label class="opcion">
+              <input type="checkbox" name="terminos" required />
+              <span>Acepto el reglamento interno *</span>
+            </label>
+
+            <div class="formulario__acciones">
+              <button type="submit">Enviar registro</button>
+              <button type="reset">Limpiar</button>
+            </div>
+          </form>
+
+          <p id="mensaje-confirmacion-contacto" class="oculto"></p>
+
+          <h3>Registros guardados</h3>
+          <p id="aviso-sin-registros">Aun no hay registros guardados.</p>
+          <div class="tabla-contenedor">
+            <table class="tabla" id="tabla-registros">
+              <thead>
+                <tr>
+                  <th scope="col">Local</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Correo</th>
+                  <th scope="col">Telefono</th>
+                  <th scope="col">Metodo de pago</th>
+                </tr>
+              </thead>
+              <tbody id="cuerpo-tabla-registros"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- pie de pagina direccion, redes sociales y copyright -->
+    <footer class="pie">
+      <address>Cra. 45 # 26-85, Medellin, Antioquia, Colombia</address>
+
+      <nav class="pie__redes" aria-label="Redes sociales">
+        <a href="https://pascualbravo.edu.co/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://pascualbravo.edu.co/" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://pascualbravo.edu.co/" target="_blank" rel="noopener">WhatsApp</a>
+      </nav>
+
+      <p>&copy; 2026 Plaza Mirador.</p>
+      <p class="credito-api">Tasas de cambio de <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a>.</p>
+      <p>Proyecto academico - Herramientas de Programacion III</p>
+    </footer>
+
+    <!-- notificacion emergente, la usa el JS para avisar exito o error -->
+    <p id="toast" class="toast oculto" role="status"></p>
+
+    <script src="js/modelo.js"></script>
+    <script src="js/servicios/api.js"></script>
+    <script src="js/vista.js"></script>
+    <script src="js/controlador.js"></script>
+  </body>
+</html>

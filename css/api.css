@@ -1,0 +1,51 @@
+/* indicador de carga y mensajes de la API */
+
+.estado-api {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  font-size: 14px;
+  color: var(--color-texto-tenue);
+}
+
+.estado-api.estado-api--error {
+  color: var(--color-moroso);
+  font-weight: bold;
+}
+
+.indicador-carga {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-borde);
+  border-top-color: var(--color-primario);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.credito-api {
+  font-size: 13px;
+}
+
+.indicador-carga.oculto {
+  display: none;
+}
+
+.campo-moneda {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  margin-bottom: var(--espacio-1);
+  font-size: 14px;
+}
+
+.campo-moneda select {
+  padding: 4px 8px;
+  font-size: 14px;
+}
